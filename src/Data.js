@@ -12,6 +12,8 @@ class Data extends Component{
             doc:'',
             id:"", 
             ix:"",
+            idc:"",
+            arr:[],
         };
     }
 
@@ -101,6 +103,7 @@ class Data extends Component{
     })
     .then((response) => response.json())
     .then((data) => {
+        this.getDataAPI()
         this.setState({
             data: data,
         })  
@@ -108,55 +111,58 @@ class Data extends Component{
         }
         
     ChangeCMT = (ev, i) => {
-    let data = this.state.data;
-    this.state.id = data[i].id;
-    this.state.doc = ev.target.value;
-     this.setState({
-            data,
-        });
-        
-       
-    }
-    
-    OnSubmitCMt = () => {
-            let doc = this.state.doc;
-            fetch('https://60ebfed7e9647b0017cddfbd.mockapi.io/comments', {
-            method: 'POST',
-            body: JSON.stringify({
-            author: 'author T',
-            content: doc,
-        }),
-        headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-        },
-        })
-        .then((response) => response.json())
-        .then((data) => {
-            this.setState({
-                cmt: data,
-            });   
-            let idc = this.state.cmt.id;
-            console.log(idc);
-            let idp = this.state.id;
-            console.log(idp);
-            let url = "https://60ebfed7e9647b0017cddfbd.mockapi.io/post2/";
-        fetch(`${url}${idp}`, {
-            method: 'PUT',
-            body: JSON.stringify({
-            comments: [idc],
-        }),
-        headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-        },
-        })
-        .then((data) => {
-            this.getDataAPI()
-            this.setState({
-                data: data,
-            })  
-        })
-        })       
+            let data = this.state.data;
+            this.state.id = data[i].id;
+            this.state.doc = ev.target.value;
+            this.state.arr= data[i].comments;
+             this.setState({
+                    data,
+                });
+                
+               
             }
+            
+    OnSubmitCMt = () => {
+                    let doc = this.state.doc;
+                    fetch('https://60ebfed7e9647b0017cddfbd.mockapi.io/comments', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                    author: 'author T',
+                    content: doc,
+                }),
+                headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+                },
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    this.setState({
+                        cmt: data,
+                    });   
+                    let idc = this.state.cmt.id;
+                    console.log(idc);
+                    let arr = this.state.arr;
+                    arr.push(idc);
+                    let idp = this.state.id;
+                    console.log(idp);
+                    let url = "https://60ebfed7e9647b0017cddfbd.mockapi.io/post2/";
+                fetch(`${url}${idp}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                    comments: arr,
+                }),
+                headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+                },
+                })
+                .then((data) => {
+                    this.getDataAPI()
+                    this.setState({
+                        data: data,
+                    })  
+                })
+                })       
+                    }
     
     
     TakeCmt = (cm, index) =>{
