@@ -11,6 +11,7 @@ class Data extends Component{
             indez:0,
             doc:'',
             id:"", 
+            ix:"",
         };
     }
 
@@ -19,60 +20,110 @@ class Data extends Component{
         this.getCmtAPI();
     }
 
-
     getDataAPI(){
-            fetch('https://60ebfed7e9647b0017cddfbd.mockapi.io/post2')
-            .then((response) => response.json())
-            .then((data) => {
-                        console.log(data)
-                        this.setState({
-                            data: data,
-                        })  
-                    })
-         }
-
+        fetch('https://60ebfed7e9647b0017cddfbd.mockapi.io/post2')
+        .then((response) => response.json())
+        .then((data) => {
+                    console.log(data)
+                    this.setState({
+                        data: data,
+                    })  
+                })
+     }
     
-         getCmtAPI(){
-            fetch('https://60ebfed7e9647b0017cddfbd.mockapi.io/comments')
-            .then((response) => response.json())
-            .then((data) => {
-                        console.log(data)
-                        this.setState({
-                            cmt: data,
-                        })  
-                    })
-         }
-
-
+    
+    getCmtAPI(){
+        fetch('https://60ebfed7e9647b0017cddfbd.mockapi.io/comments')
+        .then((response) => response.json())
+        .then((data) => {
+                    console.log(data)
+                    this.setState({
+                        cmt: data,
+                    })  
+                })
+     }
+    
+    
     changeText = (ev) => {
-            let data = this.state.data;
-            this.state.doc = ev.target.value;
-            this.setState({
-                data
-            });
-        }
-
-    DELETE = (ev, i) => {
-        this.state.index = i;
         let data = this.state.data;
-        let id = data[i].id;
-        console.log(i);
-        fetch(`https://60ebfed7e9647b0017cddfbd.mockapi.io/post2/${id}`, {
+        this.state.doc = ev.target.value;
+        this.setState({
+            data
+        });
+    }
+    
+    DELETE = (ev, i) => {
+    this.state.index = i;
+    let data = this.state.data;
+    let id = data[i].id;
+    console.log(i);
+    fetch(`https://60ebfed7e9647b0017cddfbd.mockapi.io/post2/${id}`, {
+    method: 'DELETE',
+    })
+    .then((data) => {
+        this.getDataAPI();
+        this.setState({
+            data: data,
+        }) 
+    })
+     }
+    
+    
+    DELETE_CMT = (cm, index) => {
+        this.state.index = index;
+        let cmt = this.state.cmt;
+        let id = cmt[index].id;
+        console.log(index);
+        console.log(id);        
+        fetch(`https://60ebfed7e9647b0017cddfbd.mockapi.io/comments/${id}`, {
         method: 'DELETE',
         })
         .then((data) => {
+            this.getCmtAPI();
             this.setState({
-                data: data,
+                cmt: data,
             }) 
         })
          }
-
+    
+    
     OnSubmit = () => {
+        let doc = this.state.doc;
+        fetch('https://60ebfed7e9647b0017cddfbd.mockapi.io/post2', {
+        method: 'POST',
+        body: JSON.stringify({
+        author: 'Trung',
+        content: doc,
+    }),
+    headers: {
+    'Content-type': 'application/json; charset=UTF-8',
+    },
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        this.setState({
+            data: data,
+        })  
+    })
+        }
+        
+    ChangeCMT = (ev, i) => {
+    let data = this.state.data;
+    this.state.id = data[i].id;
+    this.state.doc = ev.target.value;
+     this.setState({
+            data,
+        });
+        
+       
+    }
+    
+    OnSubmitCMt = () => {
             let doc = this.state.doc;
-            fetch('https://60ebfed7e9647b0017cddfbd.mockapi.io/post2', {
+            fetch('https://60ebfed7e9647b0017cddfbd.mockapi.io/comments', {
             method: 'POST',
             body: JSON.stringify({
-            author: 'Trung',
+            author: 'author T',
             content: doc,
         }),
         headers: {
@@ -82,60 +133,116 @@ class Data extends Component{
         .then((response) => response.json())
         .then((data) => {
             this.setState({
+                cmt: data,
+            });   
+            let idc = this.state.cmt.id;
+            console.log(idc);
+            let idp = this.state.id;
+            console.log(idp);
+            let url = "https://60ebfed7e9647b0017cddfbd.mockapi.io/post2/";
+        fetch(`${url}${idp}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+            comments: [idc],
+        }),
+        headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+        },
+        })
+        .then((data) => {
+            this.getDataAPI()
+            this.setState({
                 data: data,
             })  
         })
+        })       
             }
-
-
-       toggle = (ev,i) => {
-            let data = this.state.data; 
-            this.setState({modal: !this.state.modal});
-            this.state.id = data[i].id ;
-            console.log(this.state.id);
-            this.state.doc = data[i].content;
-            this.setState({
-                data
-            });
-            };
-
-        PostOut = () => {
-                let out = this.state.doc;
-                return out;
-        }
     
-        TEXTFIX = (ev) =>{
-            this.state.doc = ev.target.value;
-        }
-        
-        EditContent = () => {
-            let data = this.state.data;
-            let id = this.state.id;
-                console.log(id);
-                if(typeof(data[id]) != 'undefinded' )
-                {
-                // data[id].content = this.state.doc;
-                let url = "https://60ebfed7e9647b0017cddfbd.mockapi.io/post2/"
-                fetch(`${url}${id}`, {
-                method: 'PUT',
-                body: JSON.stringify({
-                content: this.state.doc,
-                }),
-                headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-                },
-                })
-                .then((response) => response.json())
-                .then((data) => { console.log(data)
-                    this.setState({
-                        data: data,
-                        modal: !this.state.modal
-                    })  
-                })
-                }
-   
-        }
-
+    
+    TakeCmt = (cm, index) =>{
+        let cmt = this.state.cmt;
+        this.setState({modal: !this.state.modal});
+        this.state.ix = cmt[index].id;
+        this.state.doc = cmt[index].content;
+        this.setState({
+            cmt
+        });
+    }
+    
+    
+    toggle = (ev,i) => {
+        let data = this.state.data; 
+        this.setState({modal: !this.state.modal});
+        this.state.id = data[i].id ;
+        console.log(this.state.id);
+        this.state.doc = data[i].content;
+        this.setState({
+            data
+        });
+        };
+    
+    PostOut = () => {
+            let out = this.state.doc;
+            return out;
+    }
+    
+    TEXTFIX = (ev) =>{
+        this.state.doc = ev.target.value;
+    }
+    EditCMT = () =>{
+        let cmt = this.state.cmt;
+        let ix = this.state.ix;
+        console.log(ix);
+        if(typeof(cmt[ix]) != 'undefinded' )
+            {
+            let url = "https://60ebfed7e9647b0017cddfbd.mockapi.io/comments/"
+            fetch(`${url}${ix}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+            content: this.state.doc,
+            }),
+            headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+            },
+            })
+            .then((data) => { 
+                this.getCmtAPI();
+                this.setState({
+                    cmt: data,
+                    modal: !this.state.modal
+                })  
+            })
+            }
+    }
+    
+    EditContent = () => {
+        let data = this.state.data;
+        let id = this.state.id;
+            console.log(id);
+            if(typeof(data[id]) != 'undefinded' )
+            {
+            let url = "https://60ebfed7e9647b0017cddfbd.mockapi.io/post2/"
+            fetch(`${url}${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+            content: this.state.doc,
+            }),
+            headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+            },
+            })
+            .then((data) => { 
+                this.getDataAPI();
+                this.setState({
+                    data: data,
+                    modal: !this.state.modal
+                })  
+            })
+            }
+    
+    }
+    
+    
     render(){
         let {data, modal, cmt} = this.state;
         let arrP = Object.values(data).map(key => key);
@@ -172,14 +279,14 @@ class Data extends Component{
                                      <Col xs={6}>
                                             {cm.content}
                                      </Col>
-                                     <Col xs="1">
+                                     {/* <Col xs="1">
                                          <button class="material-icons" style={{fontSize:"20px",'cursor' : 'pointer'}}>like</button>
-                                      </Col>
+                                      </Col> */}
                                       <Col xs={1}>
-                                      <button >Edit</button>
+                                      <button onClick={(cm) => this.TakeCmt(cm, index)}>Edit</button>
                                      </Col>
                                      <Col xs={1}>
-                                      <button >Delete</button>
+                                      <button onClick={cm => this.DELETE_CMT(cm,index)}>Delete</button>
                                      </Col>
                                      </Row>
                                         )
@@ -187,10 +294,10 @@ class Data extends Component{
                                     })}
                  
                 <Row className="Comment-User" style={{marginTop:"20px"}} xs="12">
-                  <input  style={{width:"70%", height:"150px", marginLeft:"15%"}} type="text" placeholder="My Comment..."  onChange = {ev => this.changeText(ev)}></input>
+                  <input  style={{width:"70%", height:"150px", marginLeft:"15%"}} type="text" placeholder="My Comment..."  onChange = {ev => this.ChangeCMT(ev, i)}></input>
                 </Row>
                   <Row className="button">
-                       <Button >Comment</Button>
+                       <Button onClick={this.OnSubmitCMt}>Comment</Button>
                        {/* onClick={this.OnSubmitCMT()} */}
                   </Row>
                 </Col>   
@@ -221,6 +328,7 @@ class Data extends Component{
               </ModalBody>
               <ModalFooter>
               <Button color="primary" onClick={this.EditContent}>Update</Button>
+              <Button color="primary" onClick={this.EditCMT}>UpdateCMT</Button>
               <Button color="secondary"  toggle={(ev)=>this.toggle(ev, 0)}>Cancel</Button>
               </ModalFooter>
           </Modal>
