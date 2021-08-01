@@ -157,6 +157,7 @@ class Data extends Component{
                 })
                 .then((data) => {
                     this.getDataAPI()
+                    this.getCmtAPI()
                     this.setState({
                         data: data,
                     })  
